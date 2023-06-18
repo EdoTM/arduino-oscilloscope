@@ -4,7 +4,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-
+/**
+ * Sets up the analog to digital converter.
+ */
 void setup_analog_to_digital_conversion() {
     // set ADC reference voltage to AVCC
     ADMUX |= _BV(REFS0);
@@ -28,7 +30,12 @@ ISR(ADC_vect) {
     printf("%u\n", adc_value);
 }
 
-
+/**
+ * Enables a switch-controlled interrupt on pin 13.
+ * When the switch is pressed, pin 12 will toggle.
+ * This is useful for triggering an oscilloscope.
+ * The switch should be connected between pin 13 and ground.
+ */
 void setup_switch_interrupt() {
     DDRB &= ~_BV(PB5); // set pin 13 to input
     PORTB |= _BV(PB5); // enable pull-up resistor
