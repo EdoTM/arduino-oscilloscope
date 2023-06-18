@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+
 void setup_analog_to_digital_conversion() {
     // set ADC reference voltage to AVCC
     ADMUX |= _BV(REFS0);
@@ -27,9 +28,31 @@ ISR(ADC_vect) {
     printf("%u\n", adc_value);
 }
 
+
+void setup_switch_interrupt() {
+    DDRB &= ~_BV(PB5); // set pin 13 to input
+    PORTB |= _BV(PB5); // enable pull-up resistor
+
+    // enable interrupt on pin 13
+    PCICR |= _BV(PCIE0);
+    PCMSK0 |= _BV(PCINT5);
+
+
+    DDRB |= _BV(PB4); // set pin 12 to output
+    PORTB &= ~_BV(PB4); // set pin 12 to low
+}
+
+ISR(PCINT0_vect) {
+    // if pin is high, toggle pin 12
+    if (PINB & _BV(PB5)) {
+        PORTB ^= _BV(PB4);
+    }
+}
+
 int main() {
     printf_init();
     setup_analog_to_digital_conversion();
+    setup_switch_interrupt();
 
     sei(); // enable interrupts
 
