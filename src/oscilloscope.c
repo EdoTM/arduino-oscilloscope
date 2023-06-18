@@ -19,7 +19,7 @@ void setup_analog_to_digital_conversion() {
     ADCSRA |= _BV(ADEN); // enable ADC
 }
 
-void start_conversion() {
+void start_analog_digital_conversion() {
     ADCSRA |= _BV(ADSC);
 }
 
@@ -57,7 +57,7 @@ int main() {
     sei(); // enable interrupts
 
     while (1) {
-        start_conversion();
+        start_analog_digital_conversion();
         _delay_ms(55);
     }
 }
