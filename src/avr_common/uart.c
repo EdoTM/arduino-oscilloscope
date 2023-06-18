@@ -2,7 +2,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 
-#define BAUD 19600
+#define BAUD 19200
 #define MYUBRR (F_CPU/16/BAUD-1)
 
 void usart_init(uint16_t ubrr);
