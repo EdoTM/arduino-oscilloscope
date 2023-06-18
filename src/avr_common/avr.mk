@@ -2,7 +2,7 @@
 CC=avr-gcc
 AS=avr-gcc
 INCLUDE_DIRS=-I. -I../avr_common
-CC_OPTS=-Wall --std=gnu99 -DF_CPU=16000000UL -O3 -funsigned-char -funsigned-bitfields  -fshort-enums -Wall -Wstrict-prototypes -mmcu=atmega2560 $(INCLUDE_DIRS)  -D__AVR_3_BYTE_PC__
+CC_OPTS=-Wall --std=gnu99 -DF_CPU=16000000UL -O3 -funsigned-char -funsigned-bitfields  -fshort-enums -Wall -Wstrict-prototypes -mmcu=atmega328p $(INCLUDE_DIRS)  -D__AVR_3_BYTE_PC__
 AS_OPTS=-x assembler-with-cpp $(CC_OPTS)
 
 AVRDUDE=avrdude
@@ -11,12 +11,12 @@ AVRDUDE=avrdude
 AVRDUDE_PORT = /dev/ttyACM0    # programmer connected to serial device
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET):i
-AVRDUDE_FLAGS = -p m2560 -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b 115200
+AVRDUDE_FLAGS = -p atmega328p -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b 19200
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
 AVRDUDE_FLAGS += -D -q -V -C /usr/share/arduino/hardware/tools/avr/../avrdude.conf
-AVRDUDE_FLAGS += -c wiring
+AVRDUDE_FLAGS += -c arduino
 
 .phony:	clean all
 
