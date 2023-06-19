@@ -7,7 +7,7 @@
 /**
  * Sets up the analog to digital converter.
  */
-void setup_analog_to_digital_conversion() {
+void setup_analog_to_digital_conversion(void) {
     // set ADC reference voltage to AVCC
     ADMUX |= _BV(REFS0);
     ADMUX &= ~_BV(REFS1);
@@ -21,7 +21,7 @@ void setup_analog_to_digital_conversion() {
     ADCSRA |= _BV(ADEN); // enable ADC
 }
 
-void start_analog_digital_conversion() {
+void start_analog_digital_conversion(void) {
     ADCSRA |= _BV(ADSC);
 }
 
@@ -36,7 +36,7 @@ ISR(ADC_vect) {
  * This is useful for testing components.
  * The switch should be connected between pin 13 and ground.
  */
-void setup_switch_interrupt() {
+void setup_switch_interrupt(void) {
     DDRB &= ~_BV(PB4); // set pin 12 to input
     PORTB |= _BV(PB4); // enable pull-up resistor on pin 12
     PCMSK0 |= _BV(PCINT4); // enable pin change interrupt on pin 12
@@ -53,7 +53,7 @@ ISR(PCINT0_vect) {
     }
 }
 
-int main() {
+int main(void) {
     printf_init();
     setup_analog_to_digital_conversion();
     setup_switch_interrupt();
