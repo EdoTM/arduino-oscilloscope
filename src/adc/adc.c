@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "../avr_common/uart.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 /**
  * Sets up the analog to digital converter.
@@ -24,7 +23,7 @@ void start_analog_digital_conversion(void) {
     ADCSRA |= _BV(ADSC);
 }
 
-ISR(ADC_vect) {
-        uint16_t adc_value = ADC;
-        printf("%u\n", adc_value);
+void print_analog_value_to_serial(void) {
+    uint16_t adc_value = ADC;
+    printf("%u\n", adc_value);
 }

@@ -4,6 +4,15 @@
 #include "./adc/adc.h"
 #include "./voltage_switch/voltage_switch.h"
 
+
+ISR(ADC_vect) {
+    print_analog_value_to_serial();
+}
+
+ISR(PCINT0_vect) {
+    toggle_voltage_on_pin_12();
+}
+
 int main(void) {
     printf_init();
     setup_analog_to_digital_conversion();

@@ -1,6 +1,5 @@
 #include "../avr_common/uart.h"
 #include <avr/io.h>
-#include <avr/interrupt.h>
 
 /**
  * Enables a switch-controlled interrupt on pin 12.
@@ -18,7 +17,7 @@ void setup_switch_interrupt(void) {
     PORTB &= ~_BV(PB5); // set pin 13 to low
 }
 
-ISR(PCINT0_vect) {
+void toggle_voltage_on_pin_12(void) {
     // if pin is high, toggle pin 12
     if (PINB & _BV(PB4)) {
         PORTB ^= _BV(PB5);
