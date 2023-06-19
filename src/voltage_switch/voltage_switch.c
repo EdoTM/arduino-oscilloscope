@@ -17,9 +17,6 @@ void setup_switch_interrupt(void) {
     PORTB &= ~_BV(PB5); // set pin 13 to low
 }
 
-void toggle_voltage_on_pin_12(void) {
-    // if pin is high, toggle pin 12
-    if (PINB & _BV(PB4)) {
-        PORTB ^= _BV(PB5);
-    }
+void toggle_voltage_on_pin_13(void) {
+    PORTB ^= _BV(PB5);
 }
