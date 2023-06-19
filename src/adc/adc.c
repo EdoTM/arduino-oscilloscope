@@ -10,13 +10,20 @@ void setup_analog_to_digital_conversion(void) {
     ADMUX |= _BV(REFS0);
     ADMUX &= ~_BV(REFS1);
     ADMUX &= ~_BV(ADLAR); // set ADC to 10-bit conversion
-    // set input channel to A0
-    ADMUX &= ~(_BV(MUX0) | _BV(MUX1) | _BV(MUX2) | _BV(MUX3));
     ADCSRA |= _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0); // set ADC prescaler to 128
 
     ADCSRA |= _BV(ADIE); // enable interrupts
 
     ADCSRA |= _BV(ADEN); // enable ADC
+}
+
+void set_adc_pin(uint8_t pin) {
+    ADMUX &= 0xF0; // clear last 4 bits of ADMUX
+    ADMUX |= pin;
+}
+
+uint8_t get_adc_pin(void) {
+    return ADMUX & 0x0F;
 }
 
 void start_analog_digital_conversion(void) {

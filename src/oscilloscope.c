@@ -18,6 +18,8 @@ int main(void) {
     setup_analog_to_digital_conversion();
     setup_switch_interrupt();
 
+    set_adc_pin(0);
+
     sei(); // enable interrupts
 
     while (1) {
