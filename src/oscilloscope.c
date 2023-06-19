@@ -13,6 +13,6 @@ int main(void) {
 
     while (1) {
         start_analog_digital_conversion();
-        _delay_ms(55);
+        _delay_ms(17);
     }
 }

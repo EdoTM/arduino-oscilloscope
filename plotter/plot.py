@@ -53,5 +53,5 @@ def get_voltage():
 ser = serial.Serial('/dev/ttyACM0', 19200, timeout=1)
 
 if __name__ == '__main__':
-    m = DynamicPlotter(sampleinterval=0.05, timewindow=10.)
+    m = DynamicPlotter(sampleinterval=0.015, timewindow=10.)
     m.run()
