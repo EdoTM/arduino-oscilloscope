@@ -22,7 +22,7 @@ class DynamicPlotter:
         self.plt.showGrid(x=True, y=True)
         self.plt.setLabel('left', 'Voltage', 'V')
         self.plt.setLabel('bottom', 'Time', 's')
-        self.curve = self.plt.plot(self.x, self.y, pen=(255, 0, 0))
+        self.curve = self.plt.plot(self.x, self.y, pen=(255, 255, 0))
         # QTimer
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateplot)
