@@ -15,8 +15,12 @@ void setup_switch_interrupt(void) {
 
     DDRB |= _BV(PB5); // set pin 13 to output
     PORTB &= ~_BV(PB5); // set pin 13 to low
+
+    DDRB |= _BV(PB3); // set pin 11 to output
+    PORTB &= ~_BV(PB3); // set pin 11 to low
 }
 
-void toggle_voltage_on_pin_13(void) {
+void toggle_voltage(void) {
     PORTB ^= _BV(PB5);
+    PORTB ^= _BV(PB3);
 }

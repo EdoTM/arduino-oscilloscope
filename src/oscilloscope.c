@@ -12,7 +12,7 @@ ISR(ADC_vect) {
 ISR(PCINT0_vect) {
     uint8_t pin_12_value = PINB & _BV(PB4);
     if (pin_12_value) {
-        toggle_voltage_on_pin_13();
+        toggle_voltage();
     }
 }
 
