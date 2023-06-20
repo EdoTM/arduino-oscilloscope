@@ -20,8 +20,8 @@ class DynamicPlotter:
         self.plt = pg.plot(title='Oscilloscope')
         self.plt.resize(*size)
         self.plt.showGrid(x=True, y=True)
-        self.plt.setLabel('left', 'voltage', 'V')
-        self.plt.setLabel('bottom', 'time', 's')
+        self.plt.setLabel('left', 'Voltage', 'V')
+        self.plt.setLabel('bottom', 'Time', 's')
         self.curve = self.plt.plot(self.x, self.y, pen=(255, 0, 0))
         # QTimer
         self.timer = QtCore.QTimer()
