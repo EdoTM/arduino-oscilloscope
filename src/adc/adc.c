@@ -17,6 +17,10 @@ void setup_analog_to_digital_conversion(void) {
     ADCSRA |= _BV(ADEN); // enable ADC
 }
 
+/**
+ * Sets the ADC pin. The pin must be between 0 and 5 (Arduino UNO).
+ * @param pin: the pin to set. 0 \<= pin \<= 5.
+ */
 void set_adc_pin(uint8_t pin) {
     ADMUX &= 0xF0; // clear last 4 bits of ADMUX
     ADMUX |= pin;
