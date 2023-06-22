@@ -7,30 +7,32 @@ from PyQt6 import QtWidgets
 from pyqtgraph.Qt import QtCore
 
 
-class DynamicPlotter:
+class Plotter:
     def __init__(self, sampleinterval=0.1, timewindow=10., size=(600, 350)):
         # Data stuff
         self._interval = int(sampleinterval * 1000)
         self._bufsize = int(timewindow / sampleinterval)
-        self.databuffer = collections.deque([0.0] * self._bufsize, self._bufsize)
+        self.buffer = collections.deque([0.0] * self._bufsize, maxlen=self._bufsize)
         self.x = np.linspace(-timewindow, 0.0, self._bufsize)
         self.y = np.zeros(self._bufsize, dtype=float)
+
         # PyQtGraph stuff
+        self.win = pg.GraphicsLayoutWidget(title="Oscilloscope", size=size, show=True)
         self.app = QtWidgets.QApplication([])
-        self.plt = pg.plot(title='Oscilloscope')
-        self.plt.resize(*size)
+        self.plt = self.win.addPlot(title='Oscilloscope')
         self.plt.showGrid(x=True, y=True)
         self.plt.setLabel('left', 'Voltage', 'V')
         self.plt.setLabel('bottom', 'Time', 's')
         self.curve = self.plt.plot(self.x, self.y, pen=(255, 255, 0))
+
         # QTimer
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateplot)
         self.timer.start(self._interval)
 
     def updateplot(self):
-        self.databuffer.append(get_voltage())
-        self.y[:] = self.databuffer
+        self.buffer.append(get_voltage())
+        self.y[:] = self.buffer
         self.curve.setData(self.x, self.y)
         self.app.processEvents()
 
@@ -53,5 +55,5 @@ def get_voltage():
 ser = serial.Serial('/dev/ttyACM0', 19200, timeout=1)
 
 if __name__ == '__main__':
-    m = DynamicPlotter(sampleinterval=0.015, timewindow=10.)
+    m = Plotter(sampleinterval=0.015, timewindow=10.)
     m.run()
