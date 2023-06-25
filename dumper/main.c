@@ -50,13 +50,13 @@ int main() {
 
     printf("Estimated file size: %d kB.\n", estimated_file_size_kb);
 
-    uint8_t pin = 0;
+    unsigned char pin = '0';
     printf("Enter pin number (default: 0): ");
-    fgets(input, 2, stdin);
+    fgets(input, 3, stdin);
     if (input[0] != '\n') {
-        pin = strtoul(input, NULL, 10);
+        pin = input[0];
     }
-    printf("Using pin %d\n", pin);
+    printf("Using pin %c\n", pin);
 
     printf("Press enter to start sampling.\n");
     getchar();
