@@ -16,11 +16,12 @@ class OscilloscopePlot(pg.PlotWidget):
 
 
 class PinSelectorPanel(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, pin_value_changed, parent=None):
         super().__init__(parent=parent)
         self.layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(QtWidgets.QLabel('Pin:'))
         self.pin = QtWidgets.QSpinBox()
+        self.pin.valueChanged[int].connect(pin_value_changed)
         self.pin.setRange(0, 5)
         self.pin.setPrefix('A')
         self.layout.addWidget(self.pin)
@@ -37,10 +38,10 @@ class OscilloscopeWindow(QtWidgets.QWidget):
         self.commands = QtWidgets.QWidget()
         commands_layout = QtWidgets.QVBoxLayout()
         self.start_button = QtWidgets.QPushButton('Start')
-        self.start_button.clicked.connect(self.start_button_clicked)
+        self.start_button.clicked[bool].connect(self.start_button_clicked)
         commands_layout.addWidget(self.start_button)
         self.commands.setLayout(commands_layout)
-        pins_panel = PinSelectorPanel()
+        pins_panel = PinSelectorPanel(self.change_pin)
         commands_layout.addWidget(pins_panel)
 
         self.layout = QtWidgets.QHBoxLayout()
@@ -59,6 +60,10 @@ class OscilloscopeWindow(QtWidgets.QWidget):
         self.x = np.linspace(-timewindow, 0.0, self.bufsize)
         self.y = np.zeros(self.bufsize)
         self.start = True
+
+    def change_pin(self, pin):
+        global ser
+        ser.write(bytes(str(pin), 'utf-8'))
 
     def start_button_clicked(self):
         self.start = not self.start
