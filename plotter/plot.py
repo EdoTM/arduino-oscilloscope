@@ -37,7 +37,7 @@ class OscilloscopeWindow(QtWidgets.QWidget):
 
         self.commands = QtWidgets.QWidget()
         commands_layout = QtWidgets.QVBoxLayout()
-        self.start_button = QtWidgets.QPushButton('Start')
+        self.start_button = QtWidgets.QPushButton('Stop')
         self.start_button.clicked[bool].connect(self.start_button_clicked)
         commands_layout.addWidget(self.start_button)
         self.commands.setLayout(commands_layout)
