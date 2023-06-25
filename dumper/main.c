@@ -34,16 +34,16 @@ void get_device_name(char *name, int len) {
     }
 }
 
-//uint16_t get_sampling_rate_ms() {
-//    uint16_t sampling_rate_ms = DEFAULT_SAMPLING_RATE_MS;
-//    printf("Enter sampling rate in ms (default: %d): ", DEFAULT_SAMPLING_RATE_MS);
-//    char input[4];
-//    fgets_stdin_flush(input, 4);
-//    if (input[0] != '\n')
-//        sampling_rate_ms = strtoul(input, NULL, 10);
-//
-//    return sampling_rate_ms;
-//}
+uint16_t get_sampling_rate_ms() {
+    uint16_t sampling_rate_ms = DEFAULT_SAMPLING_RATE_MS;
+    printf("Enter sampling rate in ms (default: %d): ", DEFAULT_SAMPLING_RATE_MS);
+    char input[4];
+    fgets_stdin_flush(input, 4);
+    if (input[0] != '\n')
+        sampling_rate_ms = strtoul(input, NULL, 10);
+
+    return sampling_rate_ms;
+}
 
 uint16_t get_sampling_duration_s() {
     uint16_t sampling_duration_s = DEFAULT_SAMPLING_DURATION_S;
@@ -119,6 +119,15 @@ void send_pin(const int serial_fd, unsigned char pin) {
     }
 }
 
+void send_sampling_rate(const int serial_fd, uint16_t sampling_rate_ms) {
+    unsigned char buf[] = {'f', sampling_rate_ms >> 8, sampling_rate_ms & 0xFF, '\n'};
+    ssize_t len = write(serial_fd, buf, 4);
+    if (len < 0) {
+        perror("write");
+        exit(1);
+    }
+}
+
 void sample(int serial_fd, FILE *file, uint32_t estimated_samples) {
     uint32_t samples = 0;
     char cur_byte;
@@ -140,8 +149,7 @@ int main() {
     get_device_name(serial_device_name, MAX_TTY_LEN);
     printf("Using serial @ %s\n", serial_device_name);
 
-//    uint16_t sampling_rate_ms = get_sampling_rate_ms();
-    uint16_t sampling_rate_ms = DEFAULT_SAMPLING_RATE_MS;
+    uint16_t sampling_rate_ms = get_sampling_rate_ms();
     printf("Using sampling rate %d ms\n", sampling_rate_ms);
 
     uint16_t sampling_duration_s = get_sampling_duration_s();
@@ -166,6 +174,7 @@ int main() {
 
     wait_for_arduino_to_start(serial_fd);
     send_pin(serial_fd, pin);
+    send_sampling_rate(serial_fd, sampling_rate_ms);
 
 
     printf("Sampling...\n");
