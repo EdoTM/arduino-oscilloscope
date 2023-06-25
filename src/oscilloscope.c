@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "avr_common/uart.h"
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -49,6 +50,8 @@ int main(void) {
     set_square_wave_period_mode(sqwv_period_mode);
 
     sei(); // enable interrupts
+
+    printf("start\n");
 
     while (1) {
         start_analog_digital_conversion();
