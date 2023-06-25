@@ -58,7 +58,7 @@ class OscilloscopeWindow(QtWidgets.QWidget):
         self.buffer = deque([0.0] * self.bufsize, maxlen=self.bufsize)
         self.x = np.linspace(-timewindow, 0.0, self.bufsize)
         self.y = np.zeros(self.bufsize)
-        self.start = False
+        self.start = True
 
     def start_button_clicked(self):
         self.start = not self.start
