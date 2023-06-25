@@ -9,6 +9,8 @@
 #define DEFAULT_SAMPLING_RATE_MS 15
 #define DEFAULT_SAMPLING_DURATION_S 5
 
+#define DEBUG 1
+
 void flush_stdin(void) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -79,7 +81,7 @@ int open_serial_port(char *serial_device_name) {
     return fd;
 }
 
-FILE* create_file(char *filename) {
+FILE *create_file(char *filename) {
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("fopen");
@@ -120,11 +122,28 @@ void send_pin(const int serial_fd, unsigned char pin) {
 }
 
 void send_sampling_rate(const int serial_fd, uint16_t sampling_rate_ms) {
-    unsigned char buf[] = {'f', sampling_rate_ms >> 8, sampling_rate_ms & 0xFF, '\n'};
-    ssize_t len = write(serial_fd, buf, 4);
+    char buf[7];
+    buf[0] = 'f';
+    sprintf(buf + 1, "%d\n", sampling_rate_ms);
+
+    ssize_t len = write(serial_fd, buf, strlen(buf));
     if (len < 0) {
         perror("write");
         exit(1);
+    }
+}
+
+void wait_for_frequency_to_change(int serial_fd) {
+    char c;
+    while (1) {
+        ssize_t bytes_read = read(serial_fd, &c, 1);
+        if (bytes_read < 0) {
+            perror("read");
+            exit(1);
+        }
+        if (c == 'f') {
+            break;
+        }
     }
 }
 
@@ -150,6 +169,12 @@ void sample(int serial_fd, FILE *file, uint32_t estimated_samples) {
     }
 }
 
+void debug_print(const char *str) {
+#if DEBUG
+    printf("%s\n", str);
+#endif
+}
+
 int main() {
     char serial_device_name[MAX_TTY_LEN + 1];
     get_device_name(serial_device_name, MAX_TTY_LEN);
@@ -162,7 +187,7 @@ int main() {
     printf("Using sampling duration %d s\n", sampling_duration_s);
 
     uint32_t estimated_samples = sampling_duration_s * 1000 / sampling_rate_ms;
-    uint32_t estimated_file_size_kb = estimated_samples * 4 / 1024 + 1;
+    uint32_t estimated_file_size_kb = estimated_samples * 7 / 1024 + 1;
 
     printf("Estimated file size: %d kB.\n", estimated_file_size_kb);
 
@@ -179,8 +204,16 @@ int main() {
     printf("Preparing...\n");
 
     wait_for_arduino_to_start(serial_fd);
+    debug_print("Arduino started.\n");
+
     send_pin(serial_fd, pin);
+    debug_print("Pin sent.\n");
+
     send_sampling_rate(serial_fd, sampling_rate_ms);
+    debug_print("Sampling rate sent.\n");
+
+    wait_for_frequency_to_change(serial_fd);
+    debug_print("Frequency changed.\n");
 
 
     printf("Sampling...\n");

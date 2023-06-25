@@ -11,6 +11,8 @@ volatile uint8_t sqwv_period_mode = 0;
 volatile uint16_t sample_rate_ms = 17;
 volatile uint16_t ms_since_last_conversion = 0;
 
+volatile uint8_t sample_rate_changed = 0;
+
 ISR(ADC_vect) {
     print_analog_value_to_serial();
     disable_adc();
@@ -57,8 +59,10 @@ ISR(USART_RX_vect) {
     }
     else if (rx_buf[0] == 'f') {
         uint16_t new_sample_rate_ms = strtoul(cmd_buf, NULL, 10);
-        if (new_sample_rate_ms >= 1 && new_sample_rate_ms <= 1000)
+        if (new_sample_rate_ms >= 1 && new_sample_rate_ms <= 1000) {
             sample_rate_ms = new_sample_rate_ms;
+            sample_rate_changed = 1;
+        }
     }
 }
 
@@ -70,6 +74,13 @@ void setup_timer_for_adc_sampling(void) {
 }
 
 ISR(TIMER0_COMPA_vect) {
+    if (sample_rate_changed) {
+        sample_rate_changed = 0;
+        ms_since_last_conversion = 0;
+        printf("f\n");
+        return;
+    }
+
     ms_since_last_conversion++;
 
     if (ms_since_last_conversion >= sample_rate_ms) {
@@ -93,6 +104,7 @@ int main(void) {
 
     setup_timer_for_adc_sampling();
 
+    printf("\n");
     printf("start\n");
 
     set_sleep_mode(SLEEP_MODE_IDLE);
