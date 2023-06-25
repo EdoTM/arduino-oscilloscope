@@ -98,9 +98,25 @@ def get_voltage_from_serial():
     return float(value) * 5.0 / 1023.0
 
 
+def setup_serial():
+    global ser
+    while True:
+        line = ser.readline()
+        try:
+            value = line.decode('utf-8').strip()
+        except UnicodeDecodeError:
+            pass
+        else:
+            if not value:
+                pass
+            if value == 'start':
+                break
+
+
 ser = serial.Serial('/dev/ttyACM0', 19200, timeout=1)
 
 if __name__ == '__main__':
+    setup_serial()
     app = QtWidgets.QApplication([])
     win = OscilloscopeWindow()
     win.show()
