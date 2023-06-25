@@ -46,9 +46,20 @@ ISR(USART_RX_vect) {
     }
     rx_buf[rx_buf_index] = '\0';
     rx_buf_index = 0;
-    uint8_t adc_pin = strtoul((const char *) rx_buf, NULL, 10);
-    if (adc_pin >= 0 && adc_pin <= 5)
-        set_adc_pin(adc_pin);
+
+    unsigned char command = rx_buf[0];
+    const char* cmd_buf = (const char*) rx_buf + 1;
+
+    if (command == 'a') {
+        uint8_t adc_pin = strtoul(cmd_buf, NULL, 10);
+        if (adc_pin >= 0 && adc_pin <= 5)
+            set_adc_pin(adc_pin);
+    }
+    else if (rx_buf[0] == 'f') {
+        uint16_t new_sample_rate_ms = strtoul(cmd_buf, NULL, 10);
+        if (new_sample_rate_ms >= 1 && new_sample_rate_ms <= 1000)
+            sample_rate_ms = new_sample_rate_ms;
+    }
 }
 
 void setup_timer_for_adc_sampling(void) {

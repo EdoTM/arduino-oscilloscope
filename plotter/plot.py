@@ -63,7 +63,7 @@ class OscilloscopeWindow(QtWidgets.QWidget):
 
     def change_pin(self, pin):
         global ser
-        ser.write(bytes(f"{pin}\n", 'utf-8'))
+        ser.write(bytes(f"a{pin}\n", 'utf-8'))
 
     def start_button_clicked(self):
         self.start = not self.start

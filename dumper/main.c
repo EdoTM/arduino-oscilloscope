@@ -110,8 +110,9 @@ void wait_for_arduino_to_start(int serial_fd) {
     }
 }
 
-void send_pin(int serial_fd, unsigned char pin) {
-    ssize_t len = write(serial_fd, &pin, 1);
+void send_pin(const int serial_fd, unsigned char pin) {
+    unsigned char buf[] = {'a', pin, '\n'};
+    ssize_t len = write(serial_fd, buf, 3);
     if (len < 0) {
         perror("write");
         exit(1);
