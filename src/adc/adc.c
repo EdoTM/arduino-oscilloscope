@@ -13,8 +13,6 @@ void setup_analog_to_digital_conversion(void) {
     ADCSRA |= _BV(ADPS2) | _BV(ADPS1) | _BV(ADPS0); // set ADC prescaler to 128
 
     ADCSRA |= _BV(ADIE); // enable interrupts
-
-    ADCSRA |= _BV(ADEN); // enable ADC
 }
 
 /**
@@ -28,6 +26,14 @@ void set_adc_pin(uint8_t pin) {
 
 uint8_t get_adc_pin(void) {
     return ADMUX & 0x0F;
+}
+
+void enable_adc(void) {
+    ADCSRA |= _BV(ADEN);
+}
+
+void disable_adc(void) {
+    ADCSRA &= ~_BV(ADEN);
 }
 
 void start_analog_digital_conversion(void) {

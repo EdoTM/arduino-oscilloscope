@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "avr_common/uart.h"
-#include <util/delay.h>
+#include <avr/sleep.h>
 #include <avr/interrupt.h>
 #include <assert.h>
 #include "./adc/adc.h"
@@ -8,9 +8,12 @@
 #include "./square_wave/square_wave.h"
 
 volatile uint8_t sqwv_period_mode = 0;
+volatile uint16_t sample_rate_ms = 17;
+volatile uint16_t ms_since_last_conversion = 0;
 
 ISR(ADC_vect) {
     print_analog_value_to_serial();
+    disable_adc();
 }
 
 ISR(PCINT0_vect) {
@@ -43,12 +46,30 @@ ISR(USART_RX_vect) {
     }
     rx_buf[rx_buf_index] = '\0';
     rx_buf_index = 0;
-    uint8_t adc_pin = strtoul((const char*) rx_buf, NULL, 10);
+    uint8_t adc_pin = strtoul((const char *) rx_buf, NULL, 10);
     if (adc_pin >= 0 && adc_pin <= 5)
         set_adc_pin(adc_pin);
 }
 
+void setup_timer_for_adc_sampling(void) {
+    TCCR0A |= _BV(WGM01); // set CTC mode
+    TCCR0B |= _BV(CS01) | _BV(CS00); // set prescaler to 64
+    OCR0A = 249; // tick every 1 ms
+    TIMSK0 |= _BV(OCIE0A); // enable compare interrupt
+}
+
+ISR(TIMER0_COMPA_vect) {
+    ms_since_last_conversion++;
+
+    if (ms_since_last_conversion >= sample_rate_ms) {
+        ms_since_last_conversion = 0;
+        enable_adc();
+        start_analog_digital_conversion();
+    }
+}
+
 int main(void) {
+    cli(); // disable interrupts
     printf_init();
 
     setup_analog_to_digital_conversion();
@@ -59,12 +80,14 @@ int main(void) {
     setup_square_wave_generator();
     set_square_wave_period_mode(sqwv_period_mode);
 
-    sei(); // enable interrupts
+    setup_timer_for_adc_sampling();
 
     printf("start\n");
 
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sei(); // enable interrupts
+
     while (1) {
-        start_analog_digital_conversion();
-        _delay_ms(17);
+        sleep_mode();
     }
 }
