@@ -130,17 +130,23 @@ void send_sampling_rate(const int serial_fd, uint16_t sampling_rate_ms) {
 
 void sample(int serial_fd, FILE *file, uint32_t estimated_samples) {
     uint32_t samples = 0;
-    char cur_byte;
+    char buffer[10];
+    uint8_t buffer_idx = 0;
     while (samples < estimated_samples) {
-        ssize_t bytes_read = read(serial_fd, &cur_byte, 1);
+        ssize_t bytes_read = read(serial_fd, buffer + buffer_idx, 1);
         if (bytes_read < 0) {
             perror("read");
             exit(1);
         }
-        if (cur_byte == '\n') {
+        buffer_idx += bytes_read;
+        if (buffer[buffer_idx - 1] == '\n') {
             samples++;
+            buffer[buffer_idx] = '\0';
+            buffer_idx = 0;
+            uint16_t value = strtoul(buffer, NULL, 10);
+            double voltage = value * 5.0 / 1023.0;
+            fprintf(file, "%.4f\n", voltage);
         }
-        fputc(cur_byte, file);
     }
 }
 
