@@ -30,6 +30,13 @@ ISR(TIMER1_COMPA_vect) {
     toggle_square_wave_voltage();
 }
 
+ISR(USART_RX_vect) {
+    uint8_t data = UDR0;
+    uint8_t pin = data - '0';
+    if (pin <= 5)
+        set_adc_pin(pin);
+}
+
 int main(void) {
     printf_init();
 
