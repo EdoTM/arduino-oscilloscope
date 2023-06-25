@@ -69,6 +69,34 @@ int main() {
     serial_set_interface_attribs(fd, 19200, 0);
     serial_set_blocking(fd, 1);
 
+
+    FILE *file = fopen("data.csv", "w");
+    if (file == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+
+    printf("Preparing...\n");
+
+    char buf[10];
+    ssize_t bytes_read = 0;
+    while (1) {
+        ssize_t ret = read(fd, buf + bytes_read, 1);
+        if (ret < 0) {
+            perror("read");
+            exit(1);
+        }
+        bytes_read += ret;
+
+        if (buf[bytes_read - 1] == '\n') {
+            buf[bytes_read] = '\0';
+            if (strncmp(buf, "start", 5) == 0) {
+                break;
+            }
+            bytes_read = 0;
+        }
+    }
+
     // send pin
     ssize_t len = write(fd, &pin, 1);
     if (len < 0) {
@@ -76,16 +104,12 @@ int main() {
         exit(1);
     }
 
-    FILE* file = fopen("data.csv", "w");
-    if (file == NULL) {
-        perror("fopen");
-        exit(1);
-    }
+    printf("Sampling...\n");
 
     uint32_t samples = 0;
     char cur_byte;
     while (samples < estimated_samples) {
-        ssize_t bytes_read = read(fd, &cur_byte, 1);
+        bytes_read = read(fd, &cur_byte, 1);
         if (bytes_read < 0) {
             perror("read");
             exit(1);
