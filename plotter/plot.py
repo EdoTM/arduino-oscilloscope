@@ -41,7 +41,7 @@ class FrequencySelectorPanel(QtWidgets.QWidget):
         inner_layout = QtWidgets.QHBoxLayout()
 
         self.freq = QtWidgets.QSpinBox()
-        self.freq.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.freq.setSingleStep(5)
         self.freq.setRange(5, 1000)
         self.freq.setValue(initial_value)
         self.freq.setSuffix(' ms/sample')
