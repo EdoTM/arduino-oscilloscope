@@ -96,6 +96,10 @@ FILE *create_dump_file(void) {
         exit(1);
     }
 
+    char linkname[] = "latest.txt";
+    unlink(linkname);
+    symlink(filename, linkname);
+
     return file;
 }
 
