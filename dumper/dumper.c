@@ -132,7 +132,7 @@ void send_pin(const int serial_fd, unsigned char pin) {
 }
 
 void send_sampling_rate(const int serial_fd, uint16_t sampling_rate_ms) {
-    char buf[7];
+    char buf[8];
     buf[0] = 'f';
     sprintf(buf + 1, "%d\n", sampling_rate_ms);
 

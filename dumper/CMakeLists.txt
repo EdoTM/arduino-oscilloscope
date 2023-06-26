@@ -3,4 +3,4 @@ project(dumper C)
 
 set(CMAKE_C_STANDARD 17)
 
-add_executable(dumper main.c serial_linux.c)
+add_executable(dumper dumper.c serial_linux.c)
