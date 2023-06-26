@@ -10,8 +10,6 @@
 #define DEFAULT_SAMPLING_RATE_MS 15
 #define DEFAULT_SAMPLING_DURATION_S 5
 
-#define DEBUG 1
-
 void flush_stdin(void) {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -182,7 +180,7 @@ void sample(int serial_fd, FILE *file, uint32_t estimated_samples) {
 }
 
 void debug_print(const char *str) {
-#if DEBUG
+#ifdef DEBUG
     printf("%s\n", str);
 #endif
 }
