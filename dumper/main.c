@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <time.h>
 #include "serial_linux.h"
 
 #define DEFAULT_TTY "/dev/ttyACM0"
@@ -81,7 +82,14 @@ int open_serial_port(char *serial_device_name) {
     return fd;
 }
 
-FILE *create_file(char *filename) {
+FILE *create_dump_file(void) {
+    time_t rawtime;
+    struct tm * timeinfo;
+    char filename[80];
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
+    strftime(filename, sizeof(filename), "%d-%m-%Y_%H-%M-%S.txt",timeinfo);
+
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("fopen");
@@ -198,8 +206,7 @@ int main() {
     getchar();
 
     int serial_fd = open_serial_port(serial_device_name);
-    FILE *file = create_file("data.txt");
-
+    FILE *file = create_dump_file();
 
     printf("Preparing...\n");
 
