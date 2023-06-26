@@ -4,6 +4,7 @@ import numpy as np
 import pyqtgraph as pg
 import serial
 from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtWidgets import QSizePolicy
 
 
 class OscilloscopePlot(pg.PlotWidget):
@@ -28,40 +29,90 @@ class PinSelectorPanel(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
 
+class FrequencySelectorPanel(QtWidgets.QWidget):
+    def __init__(self, initial_value, freq_value_changed, parent=None):
+        super().__init__(parent=parent)
+        self.layout = QtWidgets.QVBoxLayout()
+
+        rate_label = QtWidgets.QLabel('Sample Rate:')
+        rate_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.layout.addWidget(QtWidgets.QLabel('Rate:'), alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+
+        inner_layout = QtWidgets.QHBoxLayout()
+
+        self.freq = QtWidgets.QSpinBox()
+        self.freq.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.freq.setRange(5, 1000)
+        self.freq.setValue(initial_value)
+        self.freq.setSuffix(' ms/sample')
+        inner_layout.addWidget(self.freq, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+
+        self.set_button = QtWidgets.QPushButton('Set')
+        self.set_button.clicked[bool].connect(lambda: freq_value_changed(self.freq.value()))
+        inner_layout.addWidget(self.set_button, alignment=QtCore.Qt.AlignmentFlag.AlignTop)
+
+        self.layout.addLayout(inner_layout)
+
+        self.setLayout(self.layout)
+
+
 class OscilloscopeWindow(QtWidgets.QWidget):
     def __init__(self, parent=None, interval_ms=15, timewindow=10.):
         super().__init__(parent=parent)
         self.setWindowTitle('Oscilloscope')
-        self.resize(600, 350)
+        self.resize(1000, 350)
         self.plot = OscilloscopePlot()
+        self.interval_ms = interval_ms
 
         self.commands = QtWidgets.QWidget()
         commands_layout = QtWidgets.QVBoxLayout()
         self.start_button = QtWidgets.QPushButton('Stop')
         self.start_button.clicked[bool].connect(self.start_button_clicked)
-        commands_layout.addWidget(self.start_button)
+        commands_layout.addWidget(self.start_button, QtCore.Qt.AlignmentFlag.AlignTop)
         self.commands.setLayout(commands_layout)
-        pins_panel = PinSelectorPanel(self.change_pin)
-        commands_layout.addWidget(pins_panel)
+        pins_panel = PinSelectorPanel(self.handle_change_pin)
+        commands_layout.addWidget(pins_panel, QtCore.Qt.AlignmentFlag.AlignTop)
+        freq_panel = FrequencySelectorPanel(self.interval_ms, self.handle_change_sample_rate)
+        commands_layout.addWidget(freq_panel, QtCore.Qt.AlignmentFlag.AlignTop)
+        spacer = QtWidgets.QSpacerItem(40, 5000, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        commands_layout.addItem(spacer)
 
         self.layout = QtWidgets.QHBoxLayout()
-        self.layout.addWidget(self.plot)
-        self.layout.addWidget(self.commands)
+        self.layout.addWidget(self.plot, stretch=1)
+        self.layout.addWidget(self.commands, stretch=0)
 
         self.setLayout(self.layout)
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.updateplot)
-        self.timer.start(interval_ms)
 
         self.timewindow = timewindow
         self.plot.setXRange(-timewindow, 0)
-        self.bufsize = int(timewindow * 1000 / interval_ms)
-        self.buffer = deque([0.0] * self.bufsize, maxlen=self.bufsize)
-        self.x = np.linspace(-timewindow, 0.0, self.bufsize)
-        self.y = np.zeros(self.bufsize)
+
+        self.buffer = None  # these will be initialized in change_sample_rate
+        self.bufsize = None
+        self.x = None
+        self.y = None
+
         self.start = True
 
-    def change_pin(self, pin):
+        self.change_sample_rate(interval_ms)
+
+    def change_sample_rate(self, interval_ms: int):
+        self.interval_ms = interval_ms
+        self.bufsize = int(self.timewindow * 1000 / self.interval_ms)
+        self.buffer = deque([0.0] * self.bufsize, maxlen=self.bufsize)
+        self.x = np.linspace(-self.timewindow, 0.0, self.bufsize)
+        self.y = np.zeros(self.bufsize)
+        self.timer.stop()
+        self.timer.start(self.interval_ms)
+
+    def handle_change_sample_rate(self, rate_ms: int):
+        global ser
+        ser.write(bytes(f"f{rate_ms}\n", 'utf-8'))
+        wait_str_from_serial('f')
+        self.change_sample_rate(rate_ms)
+
+    def handle_change_pin(self, pin: int):
         global ser
         ser.write(bytes(f"a{pin}\n", 'utf-8'))
 
@@ -99,6 +150,10 @@ def get_voltage_from_serial():
 
 
 def setup_serial():
+    wait_str_from_serial('start')
+
+
+def wait_str_from_serial(s):
     global ser
     while True:
         line = ser.readline()
@@ -109,7 +164,7 @@ def setup_serial():
         else:
             if not value:
                 pass
-            if value == 'start':
+            if value == s:
                 break
 
 
