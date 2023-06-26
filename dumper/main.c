@@ -204,7 +204,7 @@ int main() {
     printf("Estimated file size: %d kB.\n", estimated_file_size_kb);
 
     unsigned char pin = get_pin();
-    printf("Using pin %c\n", pin);
+    printf("Using pin A%c\n", pin);
 
     printf("Press enter to start sampling or ctrl+c to exit.\n");
     getchar();
