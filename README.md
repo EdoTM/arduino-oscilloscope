@@ -3,7 +3,14 @@
 ## Features
 
 - **Real-time plotting.** Thanks to the use of the `PyQtGraph` python library, which allows for fast plotting, the
-  voltage on `A0` pin is plotted in real-time.
+  voltage on the selected analog pin is plotted in real-time.
+
+- **Conversion of any of the analog channels.** Change analog channel by sending `a<pin>` to the serial, where `<pin>`
+  is
+  the number of the pin to be used. For example, to use the `A3` pin, send `a3` (default pin: `A0`).
+
+- **Configurable sampling rate.** Change sampling rate by sending `f<rate>` to the serial, where `<rate>` is the number
+  of milliseconds per sample. For example, to use a sampling rate of 20 ms per sample, send `f20` (default rate: 15 ms).
 
 - **Voltage switcher.** Pressing a button will switch the voltage on the `D13` pin on and off. This can be used to test
   components both with and without power.
@@ -13,11 +20,19 @@
   between 500ms, 1s, 2s and 3s. This can be used to test components that require a square wave input. The current period
   is indicated by two LEDs.
 
+- **Create a file with the measurements.** Using the *dumper* utility, it is possible to create a file with the
+  measurements. The file will contain voltage measurements of each sample. The name of the file will be the timestamp
+  (also a `latest.txt` symlink is created), and can be visualized using any plotting utility e.g. `gnuplot`. The file
+  will be created when the program is closed.
+
 ## How to use
 
 1. Connect the Arduino to the computer with the USB cable.
-2. Upload `oscilloscope.hex` to the Arduino.
-3. Run the `plot.py` file with python.
+2. Setup hardware (see below).
+3. Upload `oscilloscope.hex` to the Arduino.
+4. Setup software (see below).
+5. Run the `plot.py` file with python to start plotting, or use the *dumper* utility to create a file with the
+   measurements.
 
 The voltage on the `A0` pin will be plotted in real-time. The components can be powered either via the power pins (5V or
 3.3V), the `D13` pin, that can be toggled between 0V and 5V, or the square wave on the `D8` pin.
@@ -51,6 +66,8 @@ The diagram of the circuit is the following:
 
 ## Software
 
+### Plotting
+
 Python version 3.10 or higher is required[^1]. The required libraries can be installed with the following command:
 
 ```shell
@@ -61,3 +78,16 @@ Then, open the `plot.py` file with python. The program will read the serial port
 real-time.
 
 [^1]: Probably lower versions will work too, but they have not been tested.
+
+### Dumper
+
+The *dumper* utility can be used to create a file with the voltage measurements, as described in the *Features* section.
+The utility can be compiled with make command:
+
+```shell
+make
+```
+
+Then, run the `dumper` executable. The program will read the serial port and create a file with the voltage measurements
+of each sample. The name of the file will be the timestamp (also a `latest.txt` symlink is created), and can be
+visualized using any plotting utility e.g. `gnuplot`. The file will be created when the program is closed.
