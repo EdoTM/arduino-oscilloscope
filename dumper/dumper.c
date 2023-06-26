@@ -118,6 +118,8 @@ void wait_for_arduino_to_start(int serial_fd) {
                 break;
             }
             bytes_read = 0;
+        } else if (bytes_read >= 10) {
+            bytes_read = 0;
         }
     }
 }
