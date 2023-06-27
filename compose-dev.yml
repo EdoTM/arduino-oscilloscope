@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  arduino-compiler:
+    image: arduino-ready
+    volumes:
+      - ./:/app/
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    tty: true
+    stdin_open: true
