@@ -215,16 +215,16 @@ int main() {
     printf("Preparing...\n");
 
     wait_for_arduino_to_start(serial_fd);
-    debug_print("Arduino started.\n");
+    debug_print("Arduino started.");
 
     send_pin(serial_fd, pin);
-    debug_print("Pin sent.\n");
+    debug_print("Pin sent.");
 
     send_sampling_rate(serial_fd, sampling_rate_ms);
-    debug_print("Sampling rate sent.\n");
+    debug_print("Sampling rate sent.");
 
     wait_for_frequency_to_change(serial_fd);
-    debug_print("Frequency changed.\n");
+    debug_print("Frequency changed.");
 
 
     printf("Sampling...\n");
@@ -235,6 +235,8 @@ int main() {
 
     debug_print("Closing file...");
     fclose(file);
+
+    debug_print("Finished.");
 
     return 0;
 }
