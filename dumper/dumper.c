@@ -233,5 +233,8 @@ int main() {
 
     printf("Done.\n");
 
+    debug_print("Closing file...");
+    fclose(file);
+
     return 0;
 }
